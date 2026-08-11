@@ -1,10 +1,22 @@
 import {base_url} from "../../utils/constants.ts";
 import type {UserProfile, UserRegister, UserUpdate} from "../../utils/types";
 import {createApi, fetchBaseQuery} from "@reduxjs/toolkit/query/react";
+import type {RootState} from "../../app/store.ts";
+
+const  authEndpoints = ['updateUser']
 
 export const accountApi = createApi({
    reducerPath: 'account',
-   baseQuery: fetchBaseQuery({baseUrl: base_url}),
+   baseQuery: fetchBaseQuery({
+       baseUrl: base_url,
+        prepareHeaders: (headers,{getState, endpoint}) => {
+           if(authEndpoints.includes(endpoint)){
+               const token = (getState() as RootState).token;
+               headers.set('Authorization', token);
+           }
+           return headers;
+        }
+   }),
    tagTypes: ['user'],
 
     endpoints: builder => ({
@@ -25,14 +37,11 @@ export const accountApi = createApi({
             }),
             providesTags: ["user"],
         }),
-        updateUser: builder.mutation<UserProfile,({user: UserUpdate, login: string, token:string})>({
-            query: ({user, login, token}) => ({
+        updateUser: builder.mutation<UserProfile,({user: UserUpdate, login: string})>({
+            query: ({user, login}) => ({
                 url:`/account/user/${login}`,
                 method: 'PATCH',
                 body: user,
-                headers:{
-                    Authorization: token
-                }
             }),
             invalidatesTags: ["user"],
         }),

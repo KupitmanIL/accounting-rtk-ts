@@ -17,7 +17,7 @@ const EditProfile = ({close}: Props) => {
 
     const handleClickSave =async () => {
         try {
-            const {error} = await updateUser({user: {firstName, lastName},token, login: data!.login});
+            const {error} = await updateUser({user: {firstName, lastName},login: data!.login});
             if (error) {
                 console.log('Update user error', error);
             }
